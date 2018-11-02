@@ -31,9 +31,18 @@ class DollarTest {
         assertEquals("USD", Money.dollar(1).currency());
         assertEquals("CHF", Money.franc(1).currency());
     }
+
+    @Test
+    void testSimpleAddition() {
+        Money five = Money.dollar(5);
+        Expression sum = five.plus(five);
+        Bank bank = new Bank();
+        Money reduced = bank.reduce(sum, "USB");
+        assertEquals(Money.dollar(10), reduced);
+    }
 }
 
-class Money {
+class Money implements Expression{
     protected int amount;
     protected String currency;
 
@@ -65,5 +74,17 @@ class Money {
 
     public String toString() {
         return amount + " " + currency;
+    }
+
+    Expression plus(Money addend) {
+        return new Money(amount + addend.amount, currency);
+    }
+}
+
+interface Expression { }
+
+class Bank {
+    Money reduce(Expression source, String to) {
+        return Money.dollar(10);
     }
 }
