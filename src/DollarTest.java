@@ -89,6 +89,36 @@ class DollarTest {
         Money result = bank.reduce(fiveBucks.plus(tenFrancs), "USD");
         assertEquals(Money.dollar(10), result);
     }
+
+    @Test
+    void testSumPlusMoney() {
+        Expression fiveBucks = Money.dollar(5);
+        Expression tenFrancs = Money.franc(10);
+        Bank bank = new Bank();
+        bank.addRate("CHF", "USD", 2);
+        Expression sum = new Sum(fiveBucks, tenFrancs).plus(fiveBucks);
+        Money result = bank.reduce(sum, "USD");
+        assertEquals(Money.dollar(15), result);
+    }
+
+    @Test
+    void testSumTimes() {
+        Expression fiveBucks = Money.dollar(5);
+        Expression tenFrancs = Money.franc(10);
+        Bank bank = new Bank();
+        bank.addRate("CHF", "USD", 2);
+        Expression sum = new Sum(fiveBucks, tenFrancs).times(2);
+        Money result = bank.reduce(sum, "USD");
+        assertEquals(Money.dollar(20), result);
+    }
+
+//    sum의 인스턴스는 Money(Expression)로 나와야함.
+//    실험했으나 제대로 되지 않아서 버렸다고 나옴(148p 참고)
+//    @Test
+//    void PlusSameCurrencyReturnsMoney() {
+//        Expression sum = Money.dollar(1).plus(Money.dollar(1));
+//        assertTrue(sum instanceof Money);
+//    }
 }
 
 class Money implements Expression{
@@ -113,7 +143,7 @@ class Money implements Expression{
         return new Money(amount, "CHF");
     }
 
-    Expression times(int multiplier) {
+    public Expression times(int multiplier) {
         return new Money(amount * multiplier, currency);
     }
 
@@ -138,6 +168,7 @@ class Money implements Expression{
 interface Expression {
     Money reduce(Bank bank, String to);
     Expression plus(Expression addend);
+    Expression times(int multiplier);
 }
 
 class Bank {
@@ -195,6 +226,10 @@ class Sum implements Expression {
     }
 
     public Expression plus(Expression addend) {
-        return null;
+        return new Sum(this, addend);
+    }
+
+    public Expression times(int multiplier) {
+        return new Sum(augend.times(multiplier), addend.times(multiplier));
     }
 }
