@@ -35,10 +35,25 @@ class DollarTest {
     @Test
     void testSimpleAddition() {
         Money five = Money.dollar(5);
-        Expression sum = five.plus(five);
+        Expression result = five.plus(five);
+        Sum sum = (Sum) result;
+        assertEquals(five, sum.augend);
+        assertEquals(five, sum.addend);
+    }
+
+    @Test
+    void testReduceSum() {
+        Expression sum = new Sum(Money.dollar(3), Money.dollar(4));
         Bank bank = new Bank();
-        Money reduced = bank.reduce(sum, "USB");
-        assertEquals(Money.dollar(10), reduced);
+        Money result = bank.reduce(sum, "USD");
+        assertEquals(Money.dollar(7), result);
+    }
+
+    @Test
+    void testReduceMoney() {
+        Bank bank = new Bank();
+        Money result = bank.reduce(Money.dollar(1), "USD");
+        assertEquals(Money.dollar(1), result);
     }
 }
 
@@ -76,15 +91,37 @@ class Money implements Expression{
         return amount + " " + currency;
     }
 
-    Expression plus(Money addend) {
-        return new Money(amount + addend.amount, currency);
+    Sum plus(Money addend) {
+        return new Sum(this, addend);
+    }
+
+    public Money reduce(String to) {
+        return this;
     }
 }
 
-interface Expression { }
+interface Expression {
+    Money reduce(String to);
+}
 
 class Bank {
     Money reduce(Expression source, String to) {
-        return Money.dollar(10);
+        return source.reduce(to);
+    }
+}
+
+// 1(augend) + 2(addend) = 3(sum)
+class Sum implements Expression {
+    Money augend;
+    Money addend;
+
+    public Sum(Money augend, Money addend) {
+        this.augend = augend;
+        this.addend = addend;
+    }
+
+    public Money reduce(String to) {
+        int amount = augend.amount + addend.amount;
+        return new Money(amount, to);
     }
 }
