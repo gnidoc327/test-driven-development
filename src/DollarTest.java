@@ -23,8 +23,6 @@ class DollarTest {
     void testEquality() {
         assertTrue(Money.dollar(5).equals(Money.dollar(5)));
         assertFalse(Money.dollar(5).equals(Money.dollar(6)));
-        assertTrue(Money.franc(5).equals(Money.franc(5)));
-        assertFalse(Money.franc(5).equals(Money.franc(6)));
         assertFalse(Money.franc(5).equals(Money.dollar(5)));
     }
 
@@ -32,11 +30,6 @@ class DollarTest {
     void testCurrency() {
         assertEquals("USD", Money.dollar(1).currency());
         assertEquals("CHF", Money.franc(1).currency());
-    }
-
-    @Test
-    void testDifferentClassEquality() {
-        assertTrue(new Money(10, "CHF").equals(new Franc(10, "CHF")));
     }
 }
 
@@ -55,11 +48,11 @@ class Money {
     }
 
     static Money dollar(int amount) {
-        return new Dollar(amount, "USD");
+        return new Money(amount, "USD");
     }
 
     static Money franc(int amount) {
-        return new Franc(amount, "CHF");
+        return new Money(amount, "CHF");
     }
 
     Money times(int multiplier) {
@@ -72,17 +65,5 @@ class Money {
 
     public String toString() {
         return amount + " " + currency;
-    }
-}
-
-class Dollar extends Money {
-    Dollar(int amount, String currency) {
-        super(amount, currency);
-    }
-}
-
-class Franc extends Money {
-    Franc(int amount, String currency) {
-        super(amount, currency);
     }
 }
